@@ -77,6 +77,10 @@ COPY start-dworker.sh ./bin/
 COPY start-dscheduler.sh ./bin/
 COPY examples examples
 
+# Add ArcticMisc
+COPY ArcticMisc ArcticMisc
+RUN cd ArcticMisk; python setup.py install; cd ..
+
 # Configure matplotlib to avoid using QT
 COPY matplotlibrc /work/.config/matplotlib/matplotlibrc
 
@@ -87,10 +91,6 @@ RUN python -c "import matplotlib.pyplot"
 # Switch back to root to make it possible to do interactive admin/debug as
 # root tasks with docker exec
 USER root
-
-# Add ArcticMisc
-COPY ArcticMisc ArcticMisc
-RUN python ArcticMisc/setup.py install
 
 # Files added via COPY need a manual chown
 RUN chown $BASICUSER:users -R /work/.config /work/examples /work/bin /work/requirements.txt
