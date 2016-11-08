@@ -6,6 +6,7 @@ RUN apt-get update -yqq  && apt-get install -yqq \
   bzip2 \
   git \
   libglib2.0-0 \
+  build-essential\
   && rm -rf /var/lib/apt/lists/*
 
 # Configure environment
@@ -79,7 +80,7 @@ COPY start-dscheduler.sh ./bin/
 COPY examples examples
 
 # Install arctic
-RUN pip install git+https://github.com/manahl/arctic.git
+RUN pip install Cython; pip install git+https://github.com/manahl/arctic.git
 
 # Add ArcticMisc
 COPY ArcticMisc ArcticMisc
