@@ -70,12 +70,16 @@ RUN conda install -y \
 # Install the master branch of distributed and dask
 COPY requirements.txt .
 RUN pip install -r requirements.txt && rm -rf ~/.cache/pip/
+ 
 
 # Add local files at the end of the Dockerfule to limit cache busting
 COPY start-notebook.sh ./bin/
 COPY start-dworker.sh ./bin/
 COPY start-dscheduler.sh ./bin/
 COPY examples examples
+
+# Install arctic
+RUN pip install git+https://github.com/manahl/arctic.git
 
 # Add ArcticMisc
 COPY ArcticMisc ArcticMisc
