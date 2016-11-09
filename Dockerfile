@@ -17,7 +17,7 @@ ENV LANG=C.UTF-8
 # Install arctic
 RUN pip3 install --upgrade pip; pip3 install six Cython jupyter; pip3 install -U scikit-learn 
 RUN pip3 install git+https://github.com/manahl/arctic.git
-RUN pip3 install dask distributed --upgrade
+RUN pip3 install dask distributed --upgrade; pip3 install bokeh
 RUN ipython3 kernelspec install-self
 
 # Add ArcticMisc
