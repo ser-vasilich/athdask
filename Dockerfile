@@ -1,109 +1,39 @@
-FROM debian:jessie
-MAINTAINER Olivier Grisel <olivier.grisel@ensta.org>
+FROM ubuntu:16.04
+MAINTAINER Sergiy Savchuk 
 
-RUN apt-get update -yqq  && apt-get install -yqq \
+RUN apt-get update -yqq && apt-get -yqq install \
   wget \
   bzip2 \
   git \
-  libglib2.0-0 \
-  build-essential\
-  && rm -rf /var/lib/apt/lists/*
+  curl \
+  python3-pip \
+  python3-matplotlib \
+  build-essential
 
 # Configure environment
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-# Folder to install non-system tools and serve as workspace for the notebook
-# user
-RUN mkdir -p /work/bin
-
-# Create a non-priviledge user that will run the services
-ENV BASICUSER basicuser
-ENV BASICUSER_UID 1000
-RUN useradd -m -d /work -s /bin/bash -N -u $BASICUSER_UID $BASICUSER
-RUN chown $BASICUSER /work
-USER $BASICUSER
-WORKDIR /work
-
-# Install Python 3 from miniconda
-RUN wget -O miniconda.sh \
-  https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-  && bash miniconda.sh -b -p /work/miniconda \
-  && rm miniconda.sh
-
-ENV PATH="/work/bin:/work/miniconda/bin:$PATH"
-
-
-# Install matplotlib and scikit-image without Qt
-RUN conda update -y python conda && \
-  conda install -y --no-deps \
-  matplotlib \
-  cycler \
-  freetype \
-  libpng \
-  pyparsing \
-  pytz \
-  python-dateutil \
-  scikit-image \
-  networkx \
-  pillow \
-  six \
-  && conda clean -tipsy
-
-RUN conda install -y \
-  pip \
-  setuptools \
-  notebook \
-  ipywidgets \
-  terminado \
-  psutil \
-  numpy \
-  scipy \
-  pandas \
-  bokeh \
-  scikit-learn \
-  statsmodels \
-  dask \
-  distributed \
-  && conda clean -tipsy
-
-
-# Install the master branch of distributed and dask
-COPY requirements.txt .
-RUN pip install -r requirements.txt && rm -rf ~/.cache/pip/
- 
-
-# Add local files at the end of the Dockerfule to limit cache busting
-COPY start-notebook.sh ./bin/
-COPY start-dworker.sh ./bin/
-COPY start-dscheduler.sh ./bin/
-COPY examples examples
-
 # Install arctic
-RUN pip install Cython; pip install git+https://github.com/manahl/arctic.git
+RUN pip3 install --upgrade pip; pip3 install six Cython jupyter; pip3 install -U scikit-learn 
+RUN pip3 install git+https://github.com/manahl/arctic.git
+RUN pip3 install dask distributed --upgrade
+RUN ipython3 kernelspec install-self
 
 # Add ArcticMisc
 COPY ArcticMisc ArcticMisc
-RUN cd ArcticMisk; python setup.py install; cd ..
+RUN cd ArcticMisc; python3 setup.py install; cd ..
 
-# Configure matplotlib to avoid using QT
-COPY matplotlibrc /work/.config/matplotlib/matplotlibrc
+# Install some dependencies.
+RUN pip3 --no-cache-dir install ipykernel && \
+    python3 -m ipykernel.kernelspec && \
+    rm -rf /root/.cache
 
-# Trigger creation of the matplotlib font cache
-ENV MATPLOTLIBRC /work/.config/matplotlib
-RUN python -c "import matplotlib.pyplot"
+# Add a notebook profile.
+RUN mkdir -p /root/notebook && \
+    mkdir -p -m 700 /root/.jupyter/ && \
+    echo "c.NotebookApp.ip = '*'" >> /root/.jupyter/jupyter_notebook_config.py
 
-# Switch back to root to make it possible to do interactive admin/debug as
-# root tasks with docker exec
-USER root
+VOLUME /notebooks
+WORKDIR /notebooks
 
-# Files added via COPY need a manual chown
-RUN chown $BASICUSER:users -R /work/.config /work/examples /work/bin /work/requirements.txt
-
-# Install Tini that necessary to properly run the notebook service in a docker
-# container:
-# http://jupyter-notebook.readthedocs.org/en/latest/public_server.html#docker-cmd
-ENV TINI_VERSION v0.9.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
-RUN chmod +x /usr/bin/tini
-ENTRYPOINT ["/usr/bin/tini", "--"]
