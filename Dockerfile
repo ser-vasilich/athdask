@@ -6,7 +6,9 @@ RUN apt-get update -yqq && apt-get -yqq install \
   bzip2 \
   git \
   curl \
+  npm \
   python3-pip \
+  liblz4-tool \
   python3-matplotlib \
   build-essential
 
@@ -15,19 +17,16 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 # Install arctic
-RUN pip3 install --upgrade pip; pip3 install six Cython jupyter; pip3 install -U scikit-learn 
+RUN pip3 install --upgrade pip; pip3 install six Cython; pip3 install -U scikit-learn 
 RUN pip3 install git+https://github.com/manahl/arctic.git
-RUN pip3 install dask distributed --upgrade; pip3 install bokeh
-RUN ipython3 kernelspec install-self
+RUN pip3 install dask distributed --upgrade; pip3 install bokeh pyzmq jinja2 tornado jsonschema
 
 # Add ArcticMisc
 COPY ArcticMisc ArcticMisc
 RUN cd ArcticMisc; python3 setup.py install; cd ..
 
-# Install some dependencies.
-RUN pip3 --no-cache-dir install ipykernel && \
-    python3 -m ipykernel.kernelspec && \
-    rm -rf /root/.cache
+RUN pip3 install -U jupyter; pip3 install -U notebook; pip3 install -U toree
+RUN npm install
 
 # Add a notebook profile.
 RUN mkdir -p /root/notebook && \
