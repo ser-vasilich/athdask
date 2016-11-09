@@ -19,14 +19,14 @@ ENV LANG=C.UTF-8
 # Install arctic
 RUN pip3 install --upgrade pip; pip3 install six Cython; pip3 install -U scikit-learn 
 RUN pip3 install git+https://github.com/manahl/arctic.git
-RUN pip3 install dask distributed --upgrade; pip3 install bokeh pyzmq jinja2 tornado jsonschema
+RUN pip3 install dask distributed --upgrade; \ 
+  pip3 install bokeh pyzmq jinja2 tornado jsonschema tornado_msgpack
 
 # Add ArcticMisc
 COPY ArcticMisc ArcticMisc
 RUN cd ArcticMisc; python3 setup.py install; cd ..
 
 RUN pip3 install -U jupyter; pip3 install -U notebook; pip3 install -U toree
-RUN npm install
 
 # Add a notebook profile.
 RUN mkdir -p /root/notebook && \
