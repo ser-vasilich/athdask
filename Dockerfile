@@ -8,7 +8,7 @@ RUN apt-get update -yqq && apt-get -yqq install \
   build-essential
 
 # Install arctic
-RUN pip install --upgrade pip; pip install six Cython 
+RUN pip install --upgrade pip; pip install six Cython qpython
 RUN pip install git+https://github.com/manahl/arctic.git
 
 # Add ArcticMisc
