@@ -1,10 +1,8 @@
-# Dask distributed (v: 1.12.0) + Arctic + jupyter
+# Dask v: 1.10.3 + Distributed v: 1.14.3 + Arctic + jupyter + qpython
 
-  Read the Docs v: 1.12.2
+  For compatibility: 
 
-  For compatibility replace Client to old Executor: 
-
-  from distributed import Executor
+  from distributed import Client as Executor
   client = Executor('127.0.0.1:8786')
 
 

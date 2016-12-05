@@ -1,9 +1,8 @@
-FROM ogrisel/distributed
+FROM ogrisel/distributed:latest
 MAINTAINER Sergiy Savchuk 
 
 RUN apt-get update -yqq && apt-get -yqq install \
   wget \
-  docker \
   liblz4-tool \
   build-essential
 
